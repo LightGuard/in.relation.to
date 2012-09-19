@@ -1,0 +1,14 @@
+title: In Relation To
+author: Hibernate Team
+
+profiles:
+  development:
+    base_url: /
+#    disqus_developer: true
+    dev: true
+  production:
+    base_url: http://in.relation.to/
+
+#google_analytics: UA-3479508-6
+#flattr_username: epbernard
+#disqus: emmanuelbernard-com
