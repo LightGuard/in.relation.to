@@ -1,0 +1,8 @@
+---
+---
+
+.split-cloud
+  - split_value = page.send( "#{page.split_property}" )
+  - for split in split_value
+    %span.tag{:class=>"tag-#{split.group}"}
+      %a{:href=>site.base_url + split.primary_page.url}= split
