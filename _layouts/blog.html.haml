@@ -10,5 +10,12 @@ layout: base
     ~ content
   .span3
     %h2
+      Authors
+    %ul
+    - for author in site.posts_author
+      %li
+        %span
+          %a{:href=>site.base_url + author.primary_page.url}= author
+    %h2
       Tags
-    = site.posts_tag_cloud
+    = site.posts_tags_cloud
