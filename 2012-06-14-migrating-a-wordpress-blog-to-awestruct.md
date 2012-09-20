@@ -1,6 +1,6 @@
 ---
 title: Migrating a Wordpress blog to Awestruct
-author: Emmanuel Bernard
+author: Steve Ebersole
 layout: blog-post
 tags: [website, awestruct, blog]
 ---
