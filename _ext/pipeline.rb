@@ -1,16 +1,26 @@
+require 'splitter'
+require 'split_cloud'
 
 Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Posts.new( '', :posts ) 
   extension Awestruct::Extensions::Paginator.new( :posts, '/index', :per_page=>10 )
-  extension Awestruct::Extensions::Tagger.new( :posts, 
-                                               '/index', 
-                                               '/tags', 
-                                               :per_page=>10,
-                                               :sanitize=>true )
-  extension Awestruct::Extensions::TagCloud.new( :posts,
+  extension Awestruct::Extensions::Splitter.new( :posts, 
+                                                 'tags',
+                                                 '/index', 
+                                                 '/tags', 
+                                                 :per_page=>10,
+                                                 :sanitize=>true )
+  extension Awestruct::Extensions::SplitCloud.new( :posts,
+                                                 'tags',
                                                  '/tags/index.html', 
-                                                 :layout=>'tab',
+                                                 :layout=>'blog',
                                                  :title=>'Tags')
+  extension Awestruct::Extensions::Splitter.new( :posts, 
+                                                 'author',
+                                                 '/index', 
+                                                 '/author', 
+                                                 :per_page=>10,
+                                                 :sanitize=>true )
   extension Awestruct::Extensions::Indexifier.new
   extension Awestruct::Extensions::Atomizer.new( 
     :posts, 
