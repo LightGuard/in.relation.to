@@ -7,9 +7,9 @@
   %title= escape_once( page.title )
   - if ( not site.author.nil? )
     %author
-      - if ( defined? (site.author.name) )
+      - if ( defined?( site.author.name ) )
         %name= site.author.name
-        - if ( defined? (site.author.email) )
+        - if ( site.author.email )
           %email= site.author.email
       - else
         %name= site.author
@@ -26,9 +26,9 @@
         %link{:rel=>"alternate", :type=>"text/html", :href=>"#{site.base_url}#{entry.url}" }
         - if ( not entry.author.nil? )
           %author
-            - if ( defined? (entry.author.name) )
+            - if ( defined?( entry.author.name ) )
               %name= entry.author.name
-              - if ( defined? (entry.author.email) )
+              - if ( entry.author.email )
                 %email= entry.author.email
             - else
               %name= entry.author
