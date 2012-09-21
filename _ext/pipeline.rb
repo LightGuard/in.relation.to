@@ -1,6 +1,7 @@
 require 'splitter'
 require 'split_cloud'
 require 'split_filterer'
+require 'split_atomizer'
 require 'atomizer'
 require 'paginator'
 
@@ -29,11 +30,21 @@ Awestruct::Extensions::Pipeline.new do
                                                  :output_home_file=>'index',
                                                  :sanitize=>true )
   extension Awestruct::Extensions::Indexifier.new
+  extension Awestruct::Extensions::SplitAtomizer.new( :posts, 
+                                                 'tags',
+                                                 '/', 
+                                                 :num_entries=>10,
+                                                 :sanitize=>true )
+  extension Awestruct::Extensions::SplitAtomizer.new( :posts, 
+                                                 'author',
+                                                 '/', 
+                                                 :num_entries=>10,
+                                                 :sanitize=>true )
   extension Awestruct::Extensions::Atomizer.new( 
     :posts, 
     '/feed.atom', 
     :num_entries=>10000,
     :content_url=>'http://in.relation.to',
-    :feed_title=> 'No Relation To' )
+    :feed_title=> 'In Relation To' )
 end
 
