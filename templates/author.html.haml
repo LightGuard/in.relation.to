@@ -6,6 +6,7 @@ layout: base
   .span9
     - if not page.posts.nil?
       - member = site.people.values.detect{|member| member.name == page.posts[0].author[0].to_s}
+      - sanitized_member = page.posts[0].author[0].primary_page.url.split("/")[-1].to_s
     %h1
       In relation to 
       -if member
@@ -34,10 +35,17 @@ layout: base
       = page.posts.links
 
   .span3
-    %a{:href=>'/feed.atom'}
-      %img{:src=>'/images/services/rss_32.png'}
-    %a{:href=>'/feed.atom'}
-      Feed
+    - if member
+      %a{:href=>"/#{sanitized_member}/feed.atom"}
+        %img{:src=>'/images/services/rss_32.png'}
+      %a{:href=>"/#{sanitized_member}/feed.atom"}
+        Feed for
+        = member.name
+    - else
+      %a{:href=>'/feed.atom'}
+        %img{:src=>'/images/services/rss_32.png'}
+      %a{:href=>'/feed.atom'}
+        Feed
     - if member
       .expandable
         %h2 Bio

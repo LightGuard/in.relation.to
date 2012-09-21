@@ -40,10 +40,11 @@ layout: base
       = page.posts.links
 
   .span3
-    %a{:href=>'/feed.atom'}
+    %a{:href=>"/#{identifier}/feed.atom"}
       %img{:src=>'/images/services/rss_32.png'}
-    %a{:href=>'/feed.atom'}
-      Feed
+    %a{:href=>"/#{identifier}/feed.atom"}
+      Feed for
+      = page_tag
     %h2
       Authors
     %ul.author
