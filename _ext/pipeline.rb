@@ -1,9 +1,10 @@
 require 'splitter'
 require 'split_cloud'
+require 'split_filterer'
 
 Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Posts.new( '', :posts ) 
-  #TODO ban blogs with restricted tags (like author, tags)
+  extension Awestruct::Extensions::SplitFilterer.new( :posts, 'tags', ['author', 'authors', 'tags', 'tag'] ) 
   extension Awestruct::Extensions::Paginator.new( :posts, '/index', :per_page=>10 )
   extension Awestruct::Extensions::Splitter.new( :posts, 
                                                  'tags',
