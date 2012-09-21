@@ -27,7 +27,9 @@ layout: blog
   %h2
     = page.title
   .blogtagbar
-    #{page.author}
+    - page.author.each do |author|
+      %a{:href=>author.primary_page.url}
+        = author
     &nbsp;|&nbsp;
     #{page.date.strftime( '%Y-%m-%d' )}
     &nbsp;|&nbsp;
