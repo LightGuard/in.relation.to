@@ -35,9 +35,12 @@ layout: base
       %img{:src=>'/images/services/rss_32.png'}
     %a{:href=>'/feed.atom'}
       Feed
-    %h2 Biography
-    %p
-      One upon a time, a good bio was mandatory
+    - if not page.posts.nil?
+      - member = site.people.values.detect{|member| member.name == page.posts[0].author[0].to_s}
+      - if member
+        .expandable
+          %h2 Bio
+          #{member.content}
     %h2
       Authors
     %ul.author
