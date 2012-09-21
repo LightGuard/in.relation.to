@@ -11,9 +11,10 @@ Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Paginator.new( :posts, 'index', :per_page=>10 )
   extension Awestruct::Extensions::Splitter.new( :posts, 
                                                  'tags',
-                                                 'index', 
+                                                 'templates/tags', 
                                                  '/', 
                                                  :per_page=>10,
+                                                 :output_home_file=>'index',
                                                  :sanitize=>true )
   extension Awestruct::Extensions::SplitCloud.new( :posts,
                                                  'tags',
