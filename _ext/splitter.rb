@@ -24,7 +24,7 @@ module Awestruct
         end
       end
 
-      def initialize(split_items_property, split_property, input_path, output_path='tags', opts={})
+      def initialize(split_items_property, split_property, input_path, output_path, opts={})
         @split_items_property = split_items_property
         @split_property = split_property
         @input_path  = input_path
@@ -37,8 +37,6 @@ module Awestruct
         @splits ||= {}
         all = site.send( @split_items_property )
         return if ( all.nil? || all.empty? ) 
-
-        plural_split_property =  @split_property
 
         all.each do |page|
           splits = page.send( @split_property )
@@ -53,7 +51,7 @@ module Awestruct
         end
 
         all.each do |page|
-          page.send( "#{plural_split_property}=", ( Array( page.send( plural_split_property ) ) ).collect{|t| @splits[t]} )
+          page.send( "#{@split_property}=", ( Array( page.send( @split_property ) ) ).collect{|t| @splits[t]} )
           page.extend( SplitLinker )
         end
 
@@ -95,7 +93,7 @@ module Awestruct
           split.primary_page = primary_page
         end
 
-        site.send( "#{@split_items_property}_#{plural_split_property}=", ordered_splits )
+        site.send( "#{@split_items_property}_#{@split_property}=", ordered_splits )
       end
 
       def sanitize(string)
