@@ -17,6 +17,11 @@ p {
   font-size:100%;
 }
 
+//sidebars
+ul.author {
+  list-style-type: none;
+}
+
 //tags
 @mixin tags-cloud-groups($groups, $increment: .1) {
   @for $n from 0 through ($groups - 1) {
