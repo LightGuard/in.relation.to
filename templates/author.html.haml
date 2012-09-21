@@ -4,11 +4,14 @@ layout: base
 // general layout copied from the layout blog
 .row
   .span9
-    %h1 In relation to blog
-    .lead
-      The Hibernate team blog
-
     - if not page.posts.nil?
+      - member = site.people.values.detect{|member| member.name == page.posts[0].author[0].to_s}
+    %h1
+      In relation to 
+      -if member
+        = member.name
+    - if not page.posts.nil?
+      - member = site.people.values.detect{|member| member.name == page.posts[0].author[0].to_s}
       - for post in page.posts
         .blogpost
           %h2
@@ -35,12 +38,10 @@ layout: base
       %img{:src=>'/images/services/rss_32.png'}
     %a{:href=>'/feed.atom'}
       Feed
-    - if not page.posts.nil?
-      - member = site.people.values.detect{|member| member.name == page.posts[0].author[0].to_s}
-      - if member
-        .expandable
-          %h2 Bio
-          #{member.content}
+    - if member
+      .expandable
+        %h2 Bio
+        #{member.content}
     %h2
       Authors
     %ul.author
