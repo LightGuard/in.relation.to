@@ -3,11 +3,12 @@ require 'split_cloud'
 
 Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Posts.new( '', :posts ) 
+  #TODO ban blogs with restricted tags (like author, tags)
   extension Awestruct::Extensions::Paginator.new( :posts, '/index', :per_page=>10 )
   extension Awestruct::Extensions::Splitter.new( :posts, 
                                                  'tags',
                                                  '/index', 
-                                                 '/tags', 
+                                                 '/', 
                                                  :per_page=>10,
                                                  :sanitize=>true )
   extension Awestruct::Extensions::SplitCloud.new( :posts,
@@ -18,7 +19,7 @@ Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Splitter.new( :posts, 
                                                  'author',
                                                  '/index', 
-                                                 '/author', 
+                                                 '/', 
                                                  :per_page=>10,
                                                  :sanitize=>true )
   extension Awestruct::Extensions::Indexifier.new
