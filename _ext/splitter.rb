@@ -43,6 +43,7 @@ module Awestruct
         all.each do |page|
           splits = page.send( @split_property )
           if ( splits && ! splits.empty? )
+            splits = Array(splits)
             splits.each do |split|
               split = split.to_s
               @splits[split] ||= SplitStat.new( split, [] )
@@ -52,7 +53,7 @@ module Awestruct
         end
 
         all.each do |page|
-          page.send( "#{plural_split_property}=", (page.send( plural_split_property )||[]).collect{|t| @splits[t]} )
+          page.send( "#{plural_split_property}=", ( Array( page.send( plural_split_property ) ) ).collect{|t| @splits[t]} )
           page.extend( SplitLinker )
         end
 
