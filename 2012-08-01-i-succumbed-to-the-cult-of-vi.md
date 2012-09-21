@@ -2,7 +2,7 @@
 title: I succumbed to the Cult of vi
 author: Emmanuel Bernard
 layout: blog-post
-tags: [tool]
+tags: [tool, Laissez faire]
 ---
 I think I am seriously regressing as I grow older.
 
