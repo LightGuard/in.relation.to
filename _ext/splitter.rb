@@ -1,7 +1,4 @@
 # Generic version of Tagger
-# - all tag => split
-# test with split intead of tag in page
-# convert split with the generic consutrctor to call tag property from post
 module Awestruct
   module Extensions
     class Splitter
