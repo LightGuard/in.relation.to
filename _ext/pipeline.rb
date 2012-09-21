@@ -1,6 +1,7 @@
 require 'splitter'
 require 'split_cloud'
 require 'split_filterer'
+require 'atomizer'
 
 Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::Posts.new( '', :posts ) 
