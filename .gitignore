@@ -3,3 +3,8 @@
 .awestruct
 _site
 .sass-cache
+
+# IDE
+
+*.sublime-project
+*.sublime-workspace
