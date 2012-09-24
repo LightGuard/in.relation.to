@@ -8,6 +8,8 @@ require_relative 'blog_entry'
 require 'choice'
 require 'pstore'
 require 'nokogiri'
+require 'date'
+require 'fileutils'
 
 Choice.options do
   header 'Application options:'
@@ -42,27 +44,55 @@ class Importer
     @output_dir = output_dir
   end
 
-
-  #doc = Nokogiri::XML(File.open(@import_file))
-  #puts doc
-  #root.get_elements( 'channel/item' ).each do |item|
-  #  puts "foo"
-  # import_item( item )
-  #end
-
   def import_posts
+    successful_import = 0
+    failed_import = 0
     posts = PStore.new(@import_file)
-    posts.transaction(true) do  # begin read-only transaction, no changes allowed
-      posts.roots.each do |post_url|
-        puts "key: #{post_url}"
-        puts "value: #{posts[post_url]}"
+    posts.transaction(true) do
+      posts.roots.each do |lace|
+
+        # create a blog entry and parse its content
+        blog_entry = BlogEntry.new
+        blog_entry.lace = lace
+        begin
+          import_post(blog_entry, posts[lace])
+          write_file(blog_entry)
+          successful_import += 1
+        rescue => e
+          failed_import += 1
+          puts "error processing post #{lace}"
+          puts e.backtrace
+        end
       end
     end
+    puts "Successfull imports #{successful_import}"
+    puts "Failed imports #{failed_import}"
   end
 
   private
 
-  def import_post
+  def import_post(blog_entry, content)
+    doc = Nokogiri::HTML(content)
+
+    # process main contnet
+    blog_entry.content = doc.search('#documentDisplay')
+
+    # title and wiki title
+    title_link = doc.css('h1.documentTitle > a')
+    blog_entry.title = title_link.text
+    blog_entry.slug = title_link.attr('href').to_s.sub('/Bloggers/', '')
+
+    # author and blogger name
+    author_link = doc.css('div.documentCreatorHistory > div > a').first
+    blog_entry.author = author_link.text
+    blog_entry.blogger_name = author_link.attribute('href').to_s.sub('/Bloggers/', '')
+
+    # creation date
+    published_string = doc.css('div.documentCreatorHistory > div').first.text.strip.gsub(/Created:/, '').gsub(/\(.*/, '')
+    blog_entry.date = DateTime.parse( published_string )
+
+    # tags
+    blog_entry.tags = doc.css('div.documentTags  a').map {|link| link.text.to_s}#.uniq.sort
   end
 
   def import_images
@@ -70,7 +100,15 @@ class Importer
 
   def import_attachment
   end
+
+  def write_file(blog_entry)
+    out = File.join( @output_dir, blog_entry.file_name )
+    FileUtils.mkdir_p( File.dirname( out ) )
+    File.open( out, 'w' ) do |f|
+      f.puts blog_entry.to_erb
+    end
+  end
 end
 
-importer = Importer.new( Choice.choices.pstore, Choice.choices.out )
+importer = Importer.new( Choice.choices.pstore, Choice.choices.outdir )
 importer.import_posts
