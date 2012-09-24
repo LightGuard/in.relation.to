@@ -3,14 +3,14 @@ class BlogEntry
 
   def to_erb
     tag_string = ""
-    tags.each { |tag| tag_string += tag }
-
+    tags.each { |tag| tag_string = tag_string + tag + "," }
+    tag_string = tag_string.gsub(/,$/, '')
 
     erb = "---\n" << 
     "title: '#{@title}'\n" <<
     "author: '#{@author}'\n" << 
     "blogger_name: '#{@blogger_name}'\n" << 
- #   "publish date: '#{date}\n" << 
+ #   "publish date: '#{date}\n' << 
     "layout: blog-post\n" << 
     "tags: [#{tag_string}]\n" << 
     "slug: #{slug}\n" <<
