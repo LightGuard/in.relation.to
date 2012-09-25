@@ -4,6 +4,7 @@ require 'split_filterer'
 require 'split_atomizer'
 require 'atomizer'
 require 'paginator'
+require 'posts'
 
 Awestruct::Extensions::Pipeline.new do
   extension Awestruct::Extensions::DataDir.new
