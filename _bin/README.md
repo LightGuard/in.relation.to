@@ -18,8 +18,10 @@ awestruct site can be created.
     > ./crawler.rb -u http://in.relation.to -p ".*\.lace" -o posts.pstore
 
     # run the importer
-    > ./importer.rb -s posts.pstore -o outdir
+    > ./importer.rb -s posts.pstore -o <outdir>
 
+    # alternative for experimenting when you don't want to download images (-ni) and assets (-na)
+    > ./importer.rb -s posts.pstore -o <outdir> -ni -na
 
 ## Resources 
 

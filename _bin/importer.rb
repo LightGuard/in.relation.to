@@ -60,8 +60,12 @@ class Importer
     @skip_asset_procesing = skip_asset_procesing.nil? ? false : true
     @import_file = import_file
     @output_dir = output_dir
+
+    # images and assets/attachments go into subdirectories
     @image_dir = @output_dir + '/images'
     FileUtils.mkdir_p( @image_dir )
+    @asset_dir = @output_dir + '/assets'
+    FileUtils.mkdir_p( @asset_dir )
   end
 
   def import_posts
@@ -128,19 +132,13 @@ class Importer
     content.css('img').map do |image|
       if (image['src'] =~ /http:\/\/in.relation.to\/service\/File/)
         # get the image
-        url = URI.parse( image['src'] )
-        res = Net::HTTP.start(url.host, url.port) {|http|
-          http.get(url.path)
-        }
+        image_data = download_resource(image['src'])
 
         # just keep the image name (a number in our case)
         image_name = image['src'].split('/').last
 
         # write the image
-        out = File.join( @image_dir, image_name )
-        File.open( out, 'wb' ) do |f|
-          f.write res.body
-        end
+        write_resource(image_data, File.join( @image_dir, image_name ))
 
         # adjust the image target
         # TODO - verify this is the correct path. Where and how do images go in awestruct
@@ -151,12 +149,52 @@ class Importer
 
   def import_assets(doc)
     # attachements are in a table at the bottom of the post. Let's process the table first and then adjust the actual post content
-#    doc.css('div.attachmentDisplay tr').map do |attachment_row|
-#      attachment_row.css('a').map do |attachment_link|
-#        if(a['href'] =~ //)
-#        end
-#      end
-#    end
+    attachments = Hash.new
+    attachment_count = 1
+    doc.css('div.attachmentDisplay tr').map do |attachment_row|
+      attachment_row.css('a').map do |a|
+        if(a['href'] =~ /\/service\/File/)
+          # get the asset
+          url = BASE_URL + a['href']
+
+          # try to determine its original name
+          regexp = /\((.*), [0-9]/
+          m = regexp.match(a.text)
+          m.captures.each do |original_file_name|
+            # download and save
+            asset = download_resource(url)
+            write_resource(asset, File.join( @asset_dir, original_file_name ))
+            attachments["attachment" + attachment_count.to_s] = original_file_name
+            attachment_count += 1
+          end
+        end
+      end
+    end
+    # last but ot least we have to adjust the link in the actual post (it is just an anchor to the attachment table)
+    attachments.each_pair do |k,v|
+      doc.css('div[id = "documentDisplayContainer"] a').map do |a|
+        if(a['href'] =~ /\##{k}/)
+          a['href'] = "../../../assets/" + v
+          a.content = a.content.gsub(/\[.*\]/, '')
+        end
+      end
+    end
+  end
+
+  def download_resource(resource_url)
+    puts "Downloading resource #{resource_url}"
+    url = URI.parse( resource_url )
+    resource = Net::HTTP.start(url.host, url.port) {|http|
+      http.get(url.path)
+    }
+    return resource
+  end
+
+  def write_resource(resource, file_name)
+    puts "Writing file #{file_name}"
+    File.open( file_name, 'wb' ) do |f|
+      f.write resource.body
+    end
   end
 
   def write_file(blog_entry)
