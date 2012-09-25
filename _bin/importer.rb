@@ -21,13 +21,25 @@ Choice.options do
   option :pstore, :required => true do
     short '-s'
     long '--store=<file>'
-    desc 'The PStore file'
+    desc 'The PStore file containing the spidered HTML'
   end
 
   option :outdir, :required => true do
     short '-o'
     long '--out=<dir>'
     desc 'The name of the output directory'
+  end
+
+  option :skip_images, :required => false do
+    short '-ni'
+    long '--no-images'
+    desc 'Wether image processing should be skipped'
+  end
+
+  option :skip_assets, :required => false do
+    short '-na'
+    long '--no-assets'
+    desc 'Wether asset processing should be skipped'
   end
 
   separator 'Common:'
@@ -43,7 +55,9 @@ class Importer
 
   BASE_URL = "http://in.relation.to"
 
-  def initialize(import_file, output_dir)
+  def initialize(import_file, output_dir, skip_image_procesing, skip_asset_procesing)
+    @skip_image_procesing = skip_image_procesing.nil? ? false : true
+    @skip_asset_procesing = skip_asset_procesing.nil? ? false : true
     @import_file = import_file
     @output_dir = output_dir
     @image_dir = @output_dir + '/images'
@@ -73,7 +87,7 @@ class Importer
     end
     puts "Successfull imports #{successful_import}"
     puts "Failed imports #{failed_import}"
-    puts failures
+    #puts failures
   end
 
   private
@@ -101,13 +115,19 @@ class Importer
     # tags
     blog_entry.tags = doc.css('div.documentTags  a').map {|link| link.text.to_s}
 
-    import_images(blog_entry.content)
+    if(!@skip_image_procesing)
+      import_images(blog_entry.content)
+    end
+
+    if(!@skip_asset_procesing)
+      import_assets(doc)
+    end
   end
 
   def import_images(content)
     content.css('img').map do |image|
-      if (image['src'] =~ /http:\/\/in.relation.to\/service\/File/)  
-        # get the image 
+      if (image['src'] =~ /http:\/\/in.relation.to\/service\/File/)
+        # get the image
         url = URI.parse( image['src'] )
         res = Net::HTTP.start(url.host, url.port) {|http|
           http.get(url.path)
@@ -122,14 +142,21 @@ class Importer
           f.write res.body
         end
 
-        # adjust the image target 
-        # TODO - verify this is correct
-        image['src'] = "../../../images/" + image_name        
+        # adjust the image target
+        # TODO - verify this is the correct path. Where and how do images go in awestruct
+        image['src'] = "../../../images/" + image_name
       end
     end
   end
 
-  def import_attachment
+  def import_assets(doc)
+    # attachements are in a table at the bottom of the post. Let's process the table first and then adjust the actual post content
+#    doc.css('div.attachmentDisplay tr').map do |attachment_row|
+#      attachment_row.css('a').map do |attachment_link|
+#        if(a['href'] =~ //)
+#        end
+#      end
+#    end
   end
 
   def write_file(blog_entry)
@@ -140,5 +167,5 @@ class Importer
   end
 end
 
-importer = Importer.new( Choice.choices.pstore, Choice.choices.outdir )
+importer = Importer.new(Choice.choices.pstore, Choice.choices.outdir, Choice.choices.skip_images, Choice.choices.skip_asset_procesing)
 importer.import_posts
