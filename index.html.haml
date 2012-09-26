@@ -19,6 +19,6 @@ layout: blog
           = tag
         &nbsp;
     %p
-      ~ post.content
+      ~ post.content.force_encoding("UTF-8")
     %hr
 = page.posts.links

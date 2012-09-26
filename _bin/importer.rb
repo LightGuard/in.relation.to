@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: UTF-8
 
 require "rubygems"
 require "bundler/setup"
@@ -42,6 +43,12 @@ Choice.options do
     desc 'Wether asset processing should be skipped'
   end
 
+  option :errors, :required => false do
+    short '-e'
+    long '--log-errors'
+    desc 'Whether failed imports should be logged with stacktrace'
+  end
+
   separator 'Common:'
 
   option :help do
@@ -55,9 +62,11 @@ class Importer
 
   BASE_URL = "http://in.relation.to"
 
-  def initialize(import_file, output_dir, skip_image_procesing, skip_asset_procesing)
+  def initialize(import_file, output_dir, skip_image_procesing, skip_asset_procesing, log_errors)
     @skip_image_procesing = skip_image_procesing.nil? ? false : true
     @skip_asset_procesing = skip_asset_procesing.nil? ? false : true
+    @log_errors = log_errors.nil? ? false : true
+
     @import_file = import_file
     @output_dir = output_dir
 
@@ -69,29 +78,46 @@ class Importer
   end
 
   def import_posts
-    successful_import = 0
-    failed_import = 0
+    successful_imports = 0
+    skipped_imports = 0
+    failed_imports = 0
     failures = Hash.new
     posts = PStore.new(@import_file)
     posts.transaction(true) do
       posts.roots.each do |lace|
-
         # create a blog entry and parse its content
         blog_entry = BlogEntry.new
         blog_entry.lace = lace
         begin
-          import_post(blog_entry, posts[lace])
-          write_file(blog_entry)
-          successful_import += 1
+          if(import_post(blog_entry, posts[lace]))
+            write_file(blog_entry)
+            successful_imports += 1
+          else
+            skipped_imports += 1
+          end
         rescue => e
-          failed_import += 1
+          failed_imports += 1
           failures[lace] = e
         end
       end
     end
-    puts "Successfull imports #{successful_import}"
-    puts "Failed imports #{failed_import}"
-    #puts failures
+
+    if(@log_errors == true)
+      failures.each_pair do |k,v|
+        puts "#{k} : #{v.message}"
+        puts v.backtrace
+        puts " "
+        puts "--------------------------------------"
+        puts " "
+      end
+    end
+
+    puts "-------------------------------------------"
+    puts "Successfull imports #{successful_imports}"
+    puts "Skipped imports #{skipped_imports}"
+    puts "Failed imports #{failed_imports}"
+    puts "-------------------------------------------
+    "
   end
 
   private
@@ -99,18 +125,35 @@ class Importer
   def import_post(blog_entry, content)
     doc = Nokogiri::HTML(content)
 
-    # process main contnet
+    if(doc.css('title').text =~ /Too many active users/)
+      puts "WARN: #{blog_entry.lace} needs to be spidered again. The page reported: '#{doc.css('title').text}'"
+      return false
+    end
+
+    # process main content
     blog_entry.content = doc.search('#documentDisplay')
 
     # title and wiki title
-    title_link = doc.css('h1.documentTitle > a')
+    title_link = doc.css('h1.documentTitle > a').first
+
+    # some people mananged to write blog posts where the title is only in the breadcrumb - go figure!?
+    if(title_link.nil?)
+      title_link = doc.css('div.breadcrumb a[class = "itemText"]') 
+    end
     blog_entry.title = title_link.text
     blog_entry.slug = title_link.attr('href').to_s.sub('/Bloggers/', '')
 
     # author and blogger name
     author_link = doc.css('div.documentCreatorHistory > div > a').first
-    blog_entry.author = author_link.text
-    blog_entry.blogger_name = author_link.attribute('href').to_s.sub('/Bloggers/', '')
+    if(author_link.nil?)
+      # in some cases the author name is not linked. Parse the text instead
+      author = doc.css('div.documentCreatorHistory > div').first.content.strip.gsub(/.*\(/, '').gsub(/\).*/, '')
+      blog_entry.author = author
+      blog_entry.blogger_name = author.split(" ").first
+    else
+      blog_entry.author = author_link.text
+      blog_entry.blogger_name = author_link.attribute('href').to_s.sub('/Bloggers/', '')
+    end
 
     # creation date
     published_string = doc.css('div.documentCreatorHistory > div').first.text.strip.gsub(/Created:/, '').gsub(/\(.*/, '')
@@ -126,6 +169,8 @@ class Importer
     if(!@skip_asset_procesing)
       import_assets(doc)
     end
+
+    return true
   end
 
   def import_images(content)
@@ -182,7 +227,7 @@ class Importer
   end
 
   def download_resource(resource_url)
-    puts "Downloading #{resource_url}"
+    #puts "Downloading #{resource_url}"
     url = URI.parse( resource_url )
     resource = Net::HTTP.start(url.host, url.port) {|http|
       http.get(url.path)
@@ -191,7 +236,7 @@ class Importer
   end
 
   def write_resource(resource, file_name)
-    puts "Writing #{file_name}"
+    #puts "Writing #{file_name}"
     File.open( file_name, 'wb' ) do |f|
       f.write resource.body
     end
@@ -199,7 +244,7 @@ class Importer
 
   def write_file(blog_entry)
     out = File.join( @output_dir, blog_entry.file_name )
-    # makre sure the directory exists 
+    # makre sure the directory exists
     FileUtils.mkdir_p( File.dirname( out ) )
     File.open( out, 'w' ) do |f|
       f.puts blog_entry.to_erb
@@ -207,5 +252,5 @@ class Importer
   end
 end
 
-importer = Importer.new(Choice.choices.pstore, Choice.choices.outdir, Choice.choices.skip_images, Choice.choices.skip_assets)
+importer = Importer.new(Choice.choices.pstore, Choice.choices.outdir, Choice.choices.skip_images, Choice.choices.skip_assets, Choice.choices.errors)
 importer.import_posts

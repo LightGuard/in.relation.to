@@ -30,7 +30,7 @@ layout: base
                 = tag
               &nbsp;
           %p
-            ~ post.content
+            ~ post.content.force_encoding("UTF-8")
           %hr
       = page.posts.links
 
@@ -56,7 +56,7 @@ layout: base
       - for author in site.posts_author
         %li
           %span
-            %a{:href=>site.base_url + author.primary_page.url}= author
+            %a{:href=>site.base_url + author.primary_page.url}= author.to_s.force_encoding("UTF-8")
     %h2
       Tags
     = site.posts_tags_cloud

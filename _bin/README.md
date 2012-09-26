@@ -29,7 +29,34 @@ awestruct site can be created.
 
         git clean -f -d
 
+* To list all available script options use '-h'
+        
+        > ./crawler.rb -h
+        Usage: crawler.rb [-upoh]
+        Application options:
+        Required:
+          -u, --url=<file>                 The base url
+          -p, --pattern=<regexp>           Regular expression to limit the discovered pages
+          -o, --out=<file>                 The name of the output-file
+        Common:
+          -h, --help                       Show this message.
+
+        > ./importer.rb -h
+        Usage: importer.rb [-soninaeh]
+        Application options:
+        Required:
+          -s, --store=<file>               The PStore file containing the spidered HTML
+          -o, --out=<dir>                  The name of the output directory
+          -ni, --no-images                  Wether image processing should be skipped
+          -na, --no-assets                  Wether asset processing should be skipped
+          -e, --log-errors                 Whether failed imports should be logged with stacktrace
+        Common:
+          -h, --help                       Show this message.
+
 ## Resources 
 
-*  [Bundler](http://gembundler.com/)
+* [Bundler](http://gembundler.com/)
+* [Encoding problems](http://talk-archive.awestruct.org/Stumbling-onto-an-encoding-problem-right-from-the-start-td39.html)
+
+        incompatible character encodings: ASCII-8BIT and UTF-8 
 

@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 class BlogEntry
   attr_accessor :title, :content, :author, :blogger_name, :tags, :slug, :date, :lace
 
@@ -25,6 +27,6 @@ class BlogEntry
 
   def file_name
   	date_string = date.strftime( "%Y-%m-%d" )
-  	return File.join( @blogger_name.downcase, "#{date_string}-#{slug}.erb" )
+  	return File.join( @blogger_name, "#{date_string}-#{slug}.erb" )
   end
 end
