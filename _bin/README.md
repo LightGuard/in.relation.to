@@ -12,7 +12,7 @@ awestruct site can be created.
     > gem install bundler
 
     # get your dependencies via bundler
-    > bundler install
+    > bundle install
 
     # run the crawler
     > ./crawler.rb -u http://in.relation.to -p ".*\.lace" -o posts.pstore
