@@ -18,12 +18,18 @@ awestruct site can be created.
     > ./crawler.rb -u http://in.relation.to -p ".*\.lace" -o posts.pstore
 
     # run the importer
-    > ./importer.rb -s posts.pstore -o <outdir>
+    > ./importer.rb -s posts.pstore -o ..
 
     # alternative for experimenting when you don't want to download images (-ni) and assets (-na)
-    > ./importer.rb -s posts.pstore -o <outdir> -ni -na
+    > ./importer.rb -s posts.pstore -o .. -ni -na
+
+## Tips & Tricks
+
+* When experimenting with the importer it is often nice to start from a clean state. Just run to reset your checkout:
+
+        git clean -f -d
 
 ## Resources 
 
-*  [bundler](http://gembundler.com/)
+*  [Bundler](http://gembundler.com/)
 

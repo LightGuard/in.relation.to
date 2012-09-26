@@ -135,14 +135,14 @@ class Importer
         image_data = download_resource(image['src'])
 
         # just keep the image name (a number in our case)
-        image_name = image['src'].split('/').last
+        image_name = image['src'].split('/').last.gsub(/\?thumbnail=true/, '')
 
         # write the image
         write_resource(image_data, File.join( @image_dir, image_name ))
 
         # adjust the image target
         # TODO - verify this is the correct path. Where and how do images go in awestruct
-        image['src'] = "../../../images/" + image_name
+        image['src'] = "<%= site.base_url %>/images/" + image_name
       end
     end
   end
@@ -174,7 +174,7 @@ class Importer
     attachments.each_pair do |k,v|
       doc.css('div[id = "documentDisplayContainer"] a').map do |a|
         if(a['href'] =~ /\##{k}/)
-          a['href'] = "../../../assets/" + v
+          a['href'] = "<%= site.base_url %>/assets/" + v
           a.content = a.content.gsub(/\[.*\]/, '')
         end
       end
@@ -182,7 +182,7 @@ class Importer
   end
 
   def download_resource(resource_url)
-    puts "Downloading resource #{resource_url}"
+    puts "Downloading #{resource_url}"
     url = URI.parse( resource_url )
     resource = Net::HTTP.start(url.host, url.port) {|http|
       http.get(url.path)
@@ -191,7 +191,7 @@ class Importer
   end
 
   def write_resource(resource, file_name)
-    puts "Writing file #{file_name}"
+    puts "Writing #{file_name}"
     File.open( file_name, 'wb' ) do |f|
       f.write resource.body
     end
@@ -199,11 +199,13 @@ class Importer
 
   def write_file(blog_entry)
     out = File.join( @output_dir, blog_entry.file_name )
+    # makre sure the directory exists 
+    FileUtils.mkdir_p( File.dirname( out ) )
     File.open( out, 'w' ) do |f|
       f.puts blog_entry.to_erb
     end
   end
 end
 
-importer = Importer.new(Choice.choices.pstore, Choice.choices.outdir, Choice.choices.skip_images, Choice.choices.skip_asset_procesing)
+importer = Importer.new(Choice.choices.pstore, Choice.choices.outdir, Choice.choices.skip_images, Choice.choices.skip_assets)
 importer.import_posts

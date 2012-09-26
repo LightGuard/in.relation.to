@@ -16,6 +16,6 @@ Tested with:
 
 Then run
 
-    awestruct -d
+    awestruct -u http://localhost:4242 -d
 
 and point your browser to <http://localhost:4242>
