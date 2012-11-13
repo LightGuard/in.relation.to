@@ -27,14 +27,14 @@ layout: blog
   %h2
     = page.title
   .blogtagbar
-    - page.author.each do |author|
-      %a{:href=>author.primary_page.url}
+    - Array(page.author).each do |author|
+      %a{:href=>'author.primary_page.url'}
         = author
     &nbsp;|&nbsp;
     #{page.date.strftime( '%Y-%m-%d' )}
     &nbsp;|&nbsp;
     - page.tags.each do |tag|
-      %a.label{:href=>tag.primary_page.url}
+      %a.label{:href=>'tag.primary_page.url'}
         = tag
       &nbsp;
   %p
