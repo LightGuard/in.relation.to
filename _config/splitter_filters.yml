@@ -1,0 +1,41 @@
+tags:
+  whitelist:
+  whitelist_atom:
+    - announcement
+    - bean-validation
+    - hibernate
+    - hibernate-ogm
+    - hibernate-search
+    - hibernate-validator
+    - jboss-tools
+    - news
+    - ogm
+    - seam
+    - weld
+    - web-beans
+  blacklist:
+    - author
+    - authors
+    - tags
+    - tag
+    - page
+    - javascripts
+    - images
+    - readme
+    - templates
+  blacklist_atom:
+    - author
+    - authors
+    - tags
+    - tag
+    - page
+    - javascripts
+    - images
+    - readme
+    - templates
+
+
+author:
+  whitelist_atom:
+  blacklist_atom:
+    - sergey-smirnov
