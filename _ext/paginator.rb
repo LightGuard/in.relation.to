@@ -47,6 +47,7 @@ module Awestruct
         @prop_name    = prop_name
         @input_path   = input_path
         @per_page     = opts[:per_page] || 20
+        @per_page_init = opts[:per_page_init] || @per_page
         @window_size  = opts[:window_size] || 2
         @remove_input = opts.has_key?( :remove_input ) ? opts[:remove_input] : true
         @output_prefix = opts[:output_prefix] || File.dirname( @input_path )
@@ -57,10 +58,13 @@ module Awestruct
 
       def execute(site)
         removal_path = nil
-        all = @collection || site.send( @prop_name )
+        all = Array.new( @collection || site.send( @prop_name ) )
         i = 1
         paginated_pages = []
-        all.each_slice( @per_page ) do |slice|
+        page_size = @per_page_init
+        while ( not all.nil? and not all.empty? )
+          slice = all.slice!(0, page_size)
+          page_size = [ @per_page, page_size*2 ].min
           page = site.engine.find_and_load_site_page( @input_path )
           removal_path ||= page.output_path
           slice.extend( Paginated )
